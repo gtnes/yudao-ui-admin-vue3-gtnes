@@ -247,7 +247,8 @@ export enum DICT_TYPE {
   IOT_DATA_BRIDGE_TYPE_ENUM = 'iot_data_bridge_type_enum', // 桥梁类型
 
   // ==============软件管理==============
-  SOFTWARE_NAME = "software_name", // 软件名称
-  SOFTWARE_PLATFORM = "software_platform", // 软件平台
-  SOFTWARE_BIT = "software_bit" // 位版本
+  SOFTWARE_NAME = 'software_name', // 软件名称
+  SOFTWARE_PLATFORM = 'software_platform', // 软件平台
+  SOFTWARE_BIT = 'software_bit', // 位版本
+  SOFTWARE_TYPE = 'software_type' // 软件类型
 }
