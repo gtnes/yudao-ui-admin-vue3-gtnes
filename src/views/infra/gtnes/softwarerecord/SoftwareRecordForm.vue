@@ -1,5 +1,5 @@
 <template>
-  <Dialog :title="dialogTitle" v-model="dialogVisible" :close-on-click-modal="false">
+  <Dialog :title="dialogTitle" v-model="dialogVisible" :close-on-click-modal="false" width="750px">
     <el-form
       ref="formRef"
       :model="formData"
@@ -105,7 +105,12 @@ const open = async (type: string, id?: number) => {
   if (id) {
     formLoading.value = true
     try {
-      formData.value = await SoftwareRecordApi.getSoftwareRecord(id)
+      const data = await SoftwareRecordApi.getSoftwareRecord(id)
+      // 解决富文本编辑器数据为null时报错问题
+      if (data.description == null) {
+        data.description = ''
+      }
+      formData.value = data
     } finally {
       formLoading.value = false
     }
@@ -140,6 +145,7 @@ const submitForm = async () => {
 /** 重置表单 */
 const resetForm = () => {
   formData.value = {
+    ip: undefined,
     appType: undefined,
     version: undefined,
     platform: undefined,

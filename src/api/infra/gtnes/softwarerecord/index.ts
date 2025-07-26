@@ -42,4 +42,4 @@ export const SoftwareRecordApi = {
   exportSoftwareRecord: async (params) => {
     return await request.download({ url: `/infra/software-record/export-excel`, params })
   },
-}
+}

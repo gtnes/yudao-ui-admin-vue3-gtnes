@@ -114,13 +114,21 @@
   <ContentWrap>
     <el-table v-loading="loading" :data="list" :stripe="true" :show-overflow-tooltip="true">
       <el-table-column label="编号" align="center" prop="id" />
+      <el-table-column label="设备指纹" align="center" prop="deviceFingerprint">
+        <template #default="scope">
+          <el-link type="primary" @click="showDetail(scope.row.id)">
+            {{ scope.row.deviceFingerprint }}
+          </el-link>
+        </template>
+      </el-table-column>
       <el-table-column label="ip" align="center" prop="ip" />
+      <el-table-column label="ip归属地" align="center" prop="ipHomeLocation" />
       <el-table-column label="软件类别" align="center" prop="appType">
         <template #default="scope">
           <dict-tag :type="DICT_TYPE.SOFTWARE_TYPE" :value="scope.row.appType" />
         </template>
       </el-table-column>
-      <el-table-column label="App版本号" align="center" prop="version" />
+      <el-table-column label="App版本" align="center" prop="version" />
       <el-table-column label="软件平台" align="center" prop="platform">
         <template #default="scope">
           <dict-tag :type="DICT_TYPE.SOFTWARE_PLATFORM" :value="scope.row.platform" />
@@ -131,15 +139,20 @@
           <dict-tag :type="DICT_TYPE.SOFTWARE_BIT" :value="scope.row.bit" />
         </template>
       </el-table-column>
-      <el-table-column label="设备指纹" align="center" prop="deviceFingerprint" />
+      <el-table-column label="今日更新" align="center" prop="todayUpdateCount">
+        <template #default="scope">
+          {{ getTodayUpdateCount(scope.row.todayUpdateCount, scope.row.updateTime) }}
+        </template>
+      </el-table-column>
+      <el-table-column label="总更新" align="center" prop="totalUpdateCount" />
       <el-table-column label="系统版本" align="center" prop="osRelease" />
-      <el-table-column
+      <!-- <el-table-column
         label="创建时间"
         align="center"
         prop="createTime"
         :formatter="dateFormatter"
         width="180px"
-      />
+      /> -->
       <el-table-column
         label="更新时间"
         align="center"
@@ -179,6 +192,7 @@
 
   <!-- 表单弹窗：添加/修改 -->
   <SoftwareRecordForm ref="formRef" @success="getList" />
+  <SoftwareRecordDetail ref="detailRef" />
 </template>
 
 <script setup lang="ts">
@@ -187,6 +201,7 @@ import { dateFormatter } from '@/utils/formatTime'
 import download from '@/utils/download'
 import { SoftwareRecordApi, SoftwareRecordVO } from '@/api/infra/gtnes/softwarerecord'
 import SoftwareRecordForm from './SoftwareRecordForm.vue'
+import SoftwareRecordDetail from './SoftwareRecordDetail.vue'
 
 /** 软件使用记录 列表 */
 defineOptions({ name: 'SoftwareRecord' })
@@ -273,4 +288,19 @@ const handleExport = async () => {
 onMounted(() => {
   getList()
 })
+
+/** 获取今日更新数量 */
+const getTodayUpdateCount = (todayUpdateCount: number, updateTime: number) => {
+  if (!updateTime) return 0
+  // 获取当前日期（YYYY-MM-DD格式）
+  const today = new Date().toISOString().split('T')[0]
+  // 获取更新时间的日期部分（YYYY-MM-DD格式）
+  const updateDate = new Date(updateTime).toISOString().split('T')[0]
+  return today === updateDate ? todayUpdateCount : 0
+}
+
+const detailRef = ref()
+const showDetail = (id: number) => {
+  detailRef.value.open(id)
+}
 </script>
