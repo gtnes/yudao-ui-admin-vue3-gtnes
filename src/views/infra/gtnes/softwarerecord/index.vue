@@ -75,6 +75,15 @@
           class="!w-240px"
         />
       </el-form-item>
+      <!-- <el-form-item label="IP" prop="version">
+        <el-input
+          v-model="queryParams.ip"
+          placeholder="请输入IP"
+          clearable
+          @keyup.enter="handleQuery"
+          class="!w-240px"
+        />
+      </el-form-item> -->
       <el-form-item label="创建时间" prop="createTime">
         <el-date-picker
           v-model="queryParams.createTime"
@@ -141,7 +150,15 @@
       </el-table-column>
       <el-table-column label="今日更新" align="center" prop="todayUpdateCount">
         <template #default="scope">
-          {{ getTodayUpdateCount(scope.row.todayUpdateCount, scope.row.updateTime) }}
+          <el-tag
+            :type="
+              getTodayUpdateCount(scope.row.todayUpdateCount, scope.row.updateTime) !== 0
+                ? 'success'
+                : 'info'
+            "
+          >
+            {{ getTodayUpdateCount(scope.row.todayUpdateCount, scope.row.updateTime) }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="总更新" align="center" prop="totalUpdateCount" />
@@ -221,7 +238,8 @@ const queryParams = reactive({
   bit: undefined,
   deviceFingerprint: undefined,
   osRelease: undefined,
-  createTime: []
+  createTime: [],
+  ip: undefined
 })
 const queryFormRef = ref() // 搜索的表单
 const exportLoading = ref(false) // 导出的加载中
@@ -292,10 +310,13 @@ onMounted(() => {
 /** 获取今日更新数量 */
 const getTodayUpdateCount = (todayUpdateCount: number, updateTime: number) => {
   if (!updateTime) return 0
-  // 获取当前日期（YYYY-MM-DD格式）
-  const today = new Date().toISOString().split('T')[0]
-  // 获取更新时间的日期部分（YYYY-MM-DD格式）
-  const updateDate = new Date(updateTime).toISOString().split('T')[0]
+  // 获取当前日期（YYYY-MM-DD格式）- 使用本地时区
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  // 获取更新时间的日期部分（YYYY-MM-DD格式）- 使用本地时区
+  const updateDateTime = new Date(updateTime)
+  const updateDate = `${updateDateTime.getFullYear()}-${String(updateDateTime.getMonth() + 1).padStart(2, '0')}-${String(updateDateTime.getDate()).padStart(2, '0')}`
+  console.log('今天日期', today, '更新日期', updateDate, '是否一致', today === updateDate)
   return today === updateDate ? todayUpdateCount : 0
 }
 
