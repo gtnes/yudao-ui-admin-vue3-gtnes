@@ -42,4 +42,9 @@ export const SoftwareRecordApi = {
   exportSoftwareRecord: async (params) => {
     return await request.download({ url: `/infra/software-record/export-excel`, params })
   },
+
+  // 获取软件使用记录统计
+  getSoftwareRecordStatistics: async (appType: number) => {
+    return await request.get({ url: `/infra/software-record/statistics`, params: { appType } })
+  }
 }

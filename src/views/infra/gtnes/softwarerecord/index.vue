@@ -1,6 +1,69 @@
 <template>
+  <!-- 统计信息卡片 -->
+  <div class="stat-cards-wrapper">
+    <el-row :gutter="16">
+      <el-col :xs="24" :sm="12" :md="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon" style="background: #f0f9ff">
+              <Icon icon="ep:circle-plus" color="#67c23a" :size="32" />
+            </div>
+            <div class="stat-divider-vertical"></div>
+            <div class="stat-info">
+              <div class="stat-value">{{ statistics.todayNewCount }}</div>
+              <div class="stat-label">今日新增</div>
+            </div>
+            <div class="stat-divider-vertical"></div>
+            <div class="stat-info">
+              <div class="stat-value">{{ statistics.todayUpdateCount }}</div>
+              <div class="stat-label">今日更新</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon" style="background: #ecf5ff">
+              <Icon icon="ep:document" color="#409eff" :size="32" />
+            </div>
+            <div class="stat-divider-vertical"></div>
+            <div class="stat-info">
+              <div class="stat-value">{{ statistics.totalCount }}</div>
+              <div class="stat-label">总记录数</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="12">
+        <el-card shadow="hover" class="stat-card">
+          <div class="stat-content">
+            <div class="stat-icon" style="background: #fef0f0">
+              <Icon icon="ep:monitor" color="#f56c6c" :size="32" />
+            </div>
+            <div class="stat-divider-vertical"></div>
+            <div class="stat-info">
+              <div class="stat-value">{{ statistics.windowsCount }}</div>
+              <div class="stat-label">Windows</div>
+            </div>
+            <div class="stat-divider-vertical"></div>
+            <div class="stat-info">
+              <div class="stat-value">{{ statistics.linuxCount }}</div>
+              <div class="stat-label">Linux</div>
+            </div>
+            <div class="stat-divider-vertical"></div>
+            <div class="stat-info">
+              <div class="stat-value">{{ statistics.macOSCount }}</div>
+              <div class="stat-label">macOS</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
+
+  <!-- 搜索工作栏 -->
   <ContentWrap>
-    <!-- 搜索工作栏 -->
     <el-form
       class="-mb-15px"
       :model="queryParams"
@@ -229,6 +292,14 @@ const { t } = useI18n() // 国际化
 const loading = ref(true) // 列表的加载中
 const list = ref<SoftwareRecordVO[]>([]) // 列表的数据
 const total = ref(0) // 列表的总页数
+const statistics = ref({
+  todayNewCount: 0,
+  todayUpdateCount: 0,
+  totalCount: 0,
+  windowsCount: 0,
+  linuxCount: 0,
+  macOSCount: 0
+}) // 统计数据
 const queryParams = reactive({
   pageNo: 1,
   pageSize: 10,
@@ -256,10 +327,23 @@ const getList = async () => {
   }
 }
 
+/** 获取统计数据 */
+const getStatistics = async () => {
+  try {
+    const data = await SoftwareRecordApi.getSoftwareRecordStatistics(queryParams.appType || 1)
+    if (data) {
+      statistics.value = data
+    }
+  } catch (error) {
+    console.error('获取统计数据失败:', error)
+  }
+}
+
 /** 搜索按钮操作 */
 const handleQuery = () => {
   queryParams.pageNo = 1
   getList()
+  getStatistics()
 }
 
 /** 重置按钮操作 */
@@ -304,6 +388,7 @@ const handleExport = async () => {
 
 /** 初始化 **/
 onMounted(() => {
+  getStatistics()
   getList()
 })
 
@@ -325,3 +410,76 @@ const showDetail = (id: number) => {
   detailRef.value.open(id)
 }
 </script>
+
+<style scoped>
+.stat-card {
+  height: 80px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.stat-card :deep(.el-card__body) {
+  display: flex;
+  height: 100%;
+  padding: 0;
+  align-items: center;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.stat-icon {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-info {
+  min-width: 60px;
+  text-align: center;
+  flex: 1;
+}
+
+.stat-value {
+  margin-bottom: 2px;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+  color: #303133;
+}
+
+.stat-label {
+  font-size: 13px;
+  line-height: 1;
+  color: #909399;
+}
+
+.stat-divider-vertical {
+  width: 1px;
+  height: 40px;
+  margin: 0 12px;
+  background: #ebeef5;
+  flex-shrink: 0;
+}
+
+.mb-20px {
+  margin-bottom: 20px;
+}
+
+.stat-cards-wrapper {
+  margin: 0px 0 10px 0;
+}
+</style>
